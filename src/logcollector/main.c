@@ -179,7 +179,7 @@ int main(int argc, char **argv)
     mdebug1(STARTED_MSG);
 
     /* Start the queue */
-    if ((logr_queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
+    if ((logr_queue = StartMQ(DEFAULTQPATH, WRITE, 0)) < 0) {
         merror_exit(QUEUE_FATAL, DEFAULTQPATH);
     }
 

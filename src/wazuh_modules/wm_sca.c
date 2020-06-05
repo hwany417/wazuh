@@ -210,7 +210,7 @@ void * wm_sca_main(wm_sca_t * data) {
 
 #ifndef WIN32
 
-    for (i = 0; (data->queue = StartMQ(DEFAULTQPATH, WRITE)) < 0 && i < WM_MAX_ATTEMPTS; i++){
+    for (i = 0; (data->queue = StartMQ(DEFAULTQPATH, WRITE, MAX_OPENQ_ATTEMPS)) < 0 && i < WM_MAX_ATTEMPTS; i++){
         wm_delay(1000 * WM_MAX_WAIT);
     }
 
@@ -260,7 +260,7 @@ static int wm_sca_send_alert(wm_sca_t * data,cJSON *json_alert)
             close(data->queue);
         }
 
-        if ((data->queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
+        if ((data->queue = StartMQ(DEFAULTQPATH, WRITE, MAX_OPENQ_ATTEMPS)) < 0) {
             mwarn("Can't connect to queue.");
         } else {
             if(wm_sendmsg(data->msg_delay, data->queue, msg,WM_SCA_STAMP, SCA_MQ) < 0) {
@@ -3030,7 +3030,7 @@ static void * wm_sca_request_thread(wm_sca_t * data) {
 
     /* Create request socket */
     int cfga_queue;
-    if ((cfga_queue = StartMQ(CFGASSESSMENTQUEUEPATH, READ)) < 0) {
+    if ((cfga_queue = StartMQ(CFGASSESSMENTQUEUEPATH, READ, MAX_OPENQ_ATTEMPS)) < 0) {
         merror(QUEUE_ERROR, CFGASSESSMENTQUEUEPATH, strerror(errno));
         pthread_exit(NULL);
     }

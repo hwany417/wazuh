@@ -121,7 +121,7 @@ static void HandleClient(int client_socket, char *srcip)
             merror(QUEUE_ERROR, DEFAULTQUEUE, strerror(errno));
 
             // Try to reconnect infinitely
-            logr.m_queue = StartMQWithRetry(DEFAULTQUEUE, WRITE, 0);
+            logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE, 0);
 
             minfo("Successfully reconnected to '%s'", DEFAULTQUEUE);
 
@@ -155,7 +155,7 @@ void HandleSyslogTCP()
     /* Connecting to the message queue
      * Exit if it fails.
      */
-    if ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE)) < 0) {
+    if ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE, MAX_OPENQ_ATTEMPS)) < 0) {
         merror_exit(QUEUE_FATAL, DEFAULTQUEUE);
     }
 

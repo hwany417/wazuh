@@ -149,7 +149,7 @@ void * wm_command_main(wm_command_t * command) {
     if (!command->ignore_output) {
         int i;
 
-        for (i = 0; command->queue_fd = StartMQ(DEFAULTQPATH, WRITE), command->queue_fd < 0 && i < WM_MAX_ATTEMPTS; i++) {
+        for (i = 0; command->queue_fd = StartMQ(DEFAULTQPATH, WRITE, MAX_OPENQ_ATTEMPS), command->queue_fd < 0 && i < WM_MAX_ATTEMPTS; i++) {
             wm_delay(1000 * WM_MAX_WAIT);
         }
 

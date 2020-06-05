@@ -19,7 +19,7 @@
 #include "eventinfo.h"
 
 
-void OS_Exec(int execq, int arq, const Eventinfo *lf, const active_response *ar)
+void OS_Exec(int execq, int *arq, const Eventinfo *lf, const active_response *ar)
 {
     char exec_msg[OS_SIZE_1024 + 1];
     const char *ip;
@@ -147,12 +147,16 @@ void OS_Exec(int execq, int arq, const Eventinfo *lf, const active_response *ar)
         }
 
         if ((rc = OS_SendUnix(arq, exec_msg, 0)) < 0) {
-            if (rc == OS_SOCKBUSY) {
-                merror("AR socket busy.");
-            } else {
-                merror("AR socket error (shutdown?).");
+            if ((*arq = StartMQ(ARQUEUE, WRITE, 1)) > 0) {
+                if ((rc = OS_SendUnix(*arq, exec_msg, 0)) < 0){
+                    if (rc == OS_SOCKBUSY) {
+                        merror("AR socket busy.");
+                    } else {
+                        merror("AR socket error (shutdown?).");
+                    }
+                    merror("Error communicating with ar queue (%d).", rc);
+                }
             }
-            merror("Error communicating with ar queue (%d).", rc);
         }
     }
 

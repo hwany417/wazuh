@@ -92,7 +92,7 @@ int notify_registry(char *msg, __attribute__((unused)) int send_now)
                 SYSCHECK_REG, SYSCHECK_MQ) < 0) {
         merror(QUEUE_SEND);
 
-        if ((syscheck.queue = StartMQ(DEFAULTQPATH, WRITE)) < 0) {
+        if ((syscheck.queue = StartMQ(DEFAULTQPATH, WRITE, MAX_OPENQ_ATTEMPS)) < 0) {
             merror_exit(QUEUE_FATAL, DEFAULTQPATH);
         }
 

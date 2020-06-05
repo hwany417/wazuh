@@ -18,7 +18,7 @@ int sock_fail_time;
 #ifndef WIN32
 
 /* Start the Message Queue. type: WRITE||READ */
-int StartMQ(const char *path, short int type)
+int StartMQ(const char *path, short int type, short int n_tries)
 {
     if (type == READ) {
         return (OS_BindUnixDomain(path, SOCK_DGRAM, OS_MAXSTR + 512));
@@ -26,54 +26,28 @@ int StartMQ(const char *path, short int type)
 
     /* We give up to 21 seconds for the other end to start */
     else {
-        int rc = 0;
-        int i;
+        int rc = 0, sleep_time = 5;
+        short int try = 0;
 
-        /* Wait up to connect to the unix domain.
-         * After three errors, exit.
-         */
-         for (i = 0; i < MAX_OPENQ_ATTEMPS; i++) {
-             if (rc = OS_ConnectUnixDomain(path, SOCK_DGRAM, OS_MAXSTR + 256), rc >= 0) {
-                 break;
-             }
-             sleep(1);
-         }
-         if (i == MAX_OPENQ_ATTEMPS) {
-             merror(QUEUE_ERROR, path, strerror(errno));
-             return OS_INVALID;
-         }
+        // If n_tries is 0, trying to reconnect infinitely
+        while ((rc = OS_ConnectUnixDomain(path, SOCK_DGRAM, OS_MAXSTR + 256)), rc < 0){
+            try++;
+            minfo("Can't connect to queue. Try: %d", try);
+            if (n_tries != 0 && try == n_tries) {
+                break;
+            }
+            sleep(sleep_time += 5);
+        }
+
+        if (rc < 0) {
+            merror(QUEUE_ERROR, path, strerror(errno));
+            return OS_INVALID;
+        }
+        minfo ("connected succesfully to %s after %d tries", path, try);
 
         mdebug1(MSG_SOCKET_SIZE, OS_getsocketsize(rc));
         return (rc);
     }
-}
-
-/* Continuously attempt to start a queue */
-int StartMQWithRetry(const char *path, short int type, short int retry_times)
-{
-    int socket;
-    int retries = 0;
-    int sleep_time = 5;
-
-    while(socket = StartMQ(path, type), socket < 0) {
-        retries++;
-        if(retry_times <= 0 || retries < retry_times) {
-            sleep(sleep_time);
-
-            // If we failed, we will wait longer before reattempting to connect
-            if(sleep_time < 300)
-                sleep_time += 5;
-        } else {
-            // We already failed more than retry_times, return the error to the caller.
-            break;
-        }
-    }
-
-    if (socket > 0) {
-        minfo("Succesfully reconnected to %s", path);
-    }
-
-    return socket;
 }
 
 /* Send a message to the queue */

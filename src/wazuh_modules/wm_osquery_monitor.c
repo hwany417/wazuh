@@ -589,7 +589,7 @@ void *wm_osquery_monitor_main(wm_osquery_monitor_t *osquery)
 
     // Connect to queue
 
-    for (i = 0; i < WM_MAX_ATTEMPTS && (osquery->queue_fd = StartMQ(DEFAULTQPATH, WRITE), osquery->queue_fd < 0); i++) {
+    for (i = 0; i < WM_MAX_ATTEMPTS && (osquery->queue_fd = StartMQ(DEFAULTQPATH, WRITE, MAX_OPENQ_ATTEMPS), osquery->queue_fd < 0); i++) {
         // Trying to connect to queue
         sleep(WM_MAX_WAIT);
     }

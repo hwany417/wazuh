@@ -119,7 +119,7 @@ void wm_oscap_setup(wm_oscap *_oscap) {
 
     // Connect to socket
 
-    for (i = 0; (queue_fd = StartMQ(DEFAULTQPATH, WRITE)) < 0 && i < WM_MAX_ATTEMPTS; i++)
+    for (i = 0; (queue_fd = StartMQ(DEFAULTQPATH, WRITE, MAX_OPENQ_ATTEMPS)) < 0 && i < WM_MAX_ATTEMPTS; i++)
         wm_delay(1000 * WM_MAX_WAIT);
 
     if (i == WM_MAX_ATTEMPTS) {

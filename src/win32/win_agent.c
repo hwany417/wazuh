@@ -263,7 +263,7 @@ int local_start()
 
     /* Socket connection */
     agt->sock = -1;
-    StartMQ("", 0);
+    StartMQ("", 0, MAX_OPENQ_ATTEMPS);
 
     /* Start mutex */
     mdebug1("Creating thread mutex.");
@@ -413,14 +413,9 @@ int SendMSG(__attribute__((unused)) int queue, const char *message, const char *
 }
 
 /* StartMQ for Windows */
-int StartMQ(__attribute__((unused)) const char *path, __attribute__((unused)) short int type)
+int StartMQ(__attribute__((unused)) const char *path, __attribute__((unused)) short int type,  __attribute__((unused)) short int retries)
 {
     /* Connect to the server */
-    connect_server(0);
-    return (0);
-}
-
-StartMQWithRetry(__attribute__((unused)) const char *path, __attribute__((unused)) short int type,  __attribute__((unused)) short int retries) {
     connect_server(0);
     return (0);
 }
