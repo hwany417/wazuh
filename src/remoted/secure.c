@@ -1,4 +1,4 @@
-/* Copyright (C) 2015-2019, Wazuh Inc.
+/* Copyright (C) 2015-2020, Wazuh Inc.
  * Copyright (C) 2009 Trend Micro Inc.
  * All right reserved.
  *
@@ -243,8 +243,7 @@ void * rem_handler_main(__attribute__((unused)) void * args) {
 
     while (1) {
         message = rem_msgpop();
-        size_t fd_list_counter = rem_getCounter(message->sock);
-        if (message->counter > fd_list_counter) {
+        if (message->sock == -1 || message->counter > rem_getCounter(message->sock)) {
             memcpy(buffer, message->buffer, message->size);
             HandleSecureMessage(buffer, message->size, &message->addr, message->sock);
         } else {
@@ -427,7 +426,7 @@ static void HandleSecureMessage(char *buffer, int recv_b, struct sockaddr_in *pe
         merror(QUEUE_ERROR, DEFAULTQUEUE, strerror(errno));
 
         // Try to reconnect infinitely
-        logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE, 0);
+        logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE, MAX_OPENQ_ATTEMPS);
 
         minfo("Successfully reconnected to '%s'", DEFAULTQUEUE);
 

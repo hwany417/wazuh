@@ -1,4 +1,4 @@
-/* Copyright (C) 2015-2019, Wazuh Inc.
+/* Copyright (C) 2015-2020, Wazuh Inc.
  * Copyright (C) 2009 Trend Micro Inc.
  * All right reserved.
  *
@@ -55,11 +55,19 @@ static void HandleClient(int client_socket, char *srcip)
 
 
     while (1) {
-        /* If we fail, we need to return and close the socket */
-        if ((r_sz = OS_RecvTCPBuffer(client_socket, buffer, OS_MAXSTR - 2)) < 0) {
+        /* If an error occurred, or received 0 bytes, we need to return and close the socket */
+        r_sz = OS_RecvTCPBuffer(client_socket, buffer, OS_MAXSTR - 2);
+        switch (r_sz) {
+        case -1:
+            merror(RECV_ERROR, strerror(errno), errno);
+            // Fallthrough
+        case 0:
             close(client_socket);
             DeletePID(ARGV0);
             return;
+        default:
+            mdebug2("Received %d bytes from '%s'", r_sz, srcip);
+            break;
         }
 
         /* We must have a new line at the end */
@@ -121,7 +129,7 @@ static void HandleClient(int client_socket, char *srcip)
             merror(QUEUE_ERROR, DEFAULTQUEUE, strerror(errno));
 
             // Try to reconnect infinitely
-            logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE, 0);
+            logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE, MAX_OPENQ_ATTEMPS);
 
             minfo("Successfully reconnected to '%s'", DEFAULTQUEUE);
 
@@ -179,7 +187,7 @@ void HandleSyslogTCP()
         /* Accept new connections */
         int client_socket = OS_AcceptTCP(logr.sock, srcip, IPSIZE);
         if (client_socket < 0) {
-            mwarn("Accepting tcp connection from client failed: %s (%d)", strerror(errno), errno);
+            mwarn("Accepting TCP connection from client failed: %s (%d)", strerror(errno), errno);
             continue;
         }
 

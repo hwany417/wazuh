@@ -1,4 +1,4 @@
-/* Copyright (C) 2015-2019, Wazuh Inc.
+/* Copyright (C) 2015-2020, Wazuh Inc.
  * Copyright (C) 2009 Trend Micro Inc.
  * All right reserved.
  *
@@ -52,7 +52,7 @@ void HandleSyslog()
     memset(&peer_info, 0, sizeof(struct sockaddr_in));
 
     /* Connect to the message queue infinitely */
-    if ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE, 0)) < 0) {
+    if ((logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE, MAX_OPENQ_ATTEMPS)) < 0) {
         merror_exit(QUEUE_FATAL, DEFAULTQUEUE);
     }
 
@@ -101,7 +101,7 @@ void HandleSyslog()
             merror(QUEUE_ERROR, DEFAULTQUEUE, strerror(errno));
 
             // Try to reconnect infinitely
-            logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE, 0);
+            logr.m_queue = StartMQ(DEFAULTQUEUE, WRITE, MAX_OPENQ_ATTEMPS);
 
             minfo("Successfully reconnected to '%s'", DEFAULTQUEUE);
 

@@ -1,6 +1,6 @@
 /*
  * Label data operations
- * Copyright (C) 2015-2019, Wazuh Inc.
+ * Copyright (C) 2015-2020, Wazuh Inc.
  * February 27, 2017.
  *
  * This program is free software; you can redistribute it
@@ -88,7 +88,6 @@ int labels_format(const wlabel_t *labels, char *str, size_t size) {
         }
 
         z += l;
-        l = 0;
     }
 
     return 0;

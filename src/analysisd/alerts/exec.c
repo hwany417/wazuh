@@ -1,4 +1,4 @@
-/* Copyright (C) 2015-2019, Wazuh Inc.
+/* Copyright (C) 2015-2020, Wazuh Inc.
  * Copyright (C) 2009 Trend Micro Inc.
  * All right reserved.
  *
@@ -146,7 +146,7 @@ void OS_Exec(int execq, int *arq, const Eventinfo *lf, const active_response *ar
                      extra_args ? extra_args : "-");
         }
 
-        if ((rc = OS_SendUnix(arq, exec_msg, 0)) < 0) {
+        if ((rc = OS_SendUnix(*arq, exec_msg, 0)) < 0) {
             if ((*arq = StartMQ(ARQUEUE, WRITE, 1)) > 0) {
                 if ((rc = OS_SendUnix(*arq, exec_msg, 0)) < 0){
                     if (rc == OS_SOCKBUSY) {
